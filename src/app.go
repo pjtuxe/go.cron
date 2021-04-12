@@ -1,10 +1,25 @@
 package main
 
 import (
+	"flag"
 	"fmt"
+	"go/types"
 	"io/ioutil"
 	"net/http"
 )
+
+var (
+	apiUrl = flag.String("u", "https://httpbin.org/ip", "API URL")
+)
+
+type job struct {
+	name                string
+	image               string
+	entrypoint          string
+	commandcron_pattern string
+	variables           types.Array
+	command             types.Array
+}
 
 func log(msg string) {
 	fmt.Println(msg)
@@ -26,5 +41,5 @@ func getJobs(apiUrl string) {
 
 func main() {
 	log("go.cron started")
-	getJobs("https://httpbin.org/ip")
+	getJobs(*apiUrl)
 }
