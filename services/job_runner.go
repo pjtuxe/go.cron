@@ -1,6 +1,7 @@
 package services
 
 import (
+	"encoding/json"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"go.cron/models"
@@ -27,15 +28,22 @@ func prepareJobEnvironment(job *models.JobModel) []string {
 	}
 
 	// Append default variables
-	for _, variable := range strings.Split(utils.GetConfig().RunnerEnv, "|") {
-		env = append(env, variable)
+	if len(utils.GetConfig().RunnerEnv) > 0 {
+		for _, variable := range strings.Split(utils.GetConfig().RunnerEnv, "|") {
+			env = append(env, variable)
+		}
 	}
+
+	content, _ := json.Marshal(env)
+	utils.LogInfo(string(content))
 
 	return env
 }
 
 func (runner JobRunner) Run(job *models.JobModel) {
 	utils.LogInfo("running job \"" + job.ID + "\"")
+
+	// TODO: make API request to API to generate log id
 
 	utils.LogDebug("create container")
 	resp, err := runner.Ctx.Cli.ContainerCreate(
@@ -45,6 +53,11 @@ func (runner JobRunner) Run(job *models.JobModel) {
 			Cmd:   job.Command,
 			Tty:   false,
 			Env:   prepareJobEnvironment(job),
+			Labels: map[string]string{
+				"managed-by":     "go.cron",
+				"go-cron-job-id": job.ID,
+				"go-cron-log-id": "",
+			},
 		},
 		nil,
 		nil,
@@ -57,10 +70,12 @@ func (runner JobRunner) Run(job *models.JobModel) {
 	}
 
 	utils.LogDebug("start container")
-	if err := runner.Ctx.Cli.ContainerStart(
+	err = runner.Ctx.Cli.ContainerStart(
 		runner.Ctx.Context,
 		resp.ID,
-		types.ContainerStartOptions{}); err != nil {
+		types.ContainerStartOptions{})
+
+	if err != nil {
 		utils.LogError(err.Error())
 		return
 	}
