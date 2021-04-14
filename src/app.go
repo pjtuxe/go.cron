@@ -2,37 +2,17 @@ package main
 
 import (
 	"encoding/json"
-	"flag"
 	"fmt"
-	"gopkg.in/dealancer/validate.v2"
+	"go.cron/models"
+	"go.cron/models/job"
+	"go.cron/services"
+	"go.cron/utils"
 	"io/ioutil"
 	"net/http"
+	"time"
 )
 
-var (
-	apiUrl = flag.String("u", "https://6074d24f066e7e0017e7a5d5.mockapi.io/api/jobs/test", "API URL")
-)
-
-type variable struct {
-	Key   string `validate:"empty=false > empty=false [empty=false] > ne=0"`
-	Value string `validate:"empty=false > empty=false [empty=false] > ne=0"`
-}
-
-type job struct {
-	Name        string     `json:"name",validate:"empty=false > empty=false [empty=false] > ne=0"`
-	ID          string     `json:"id",validate:"empty=false > empty=false [empty=false] > ne=0"`
-	Image       string     `json:"image",validate:"empty=false > empty=false [empty=false] > ne=0"`
-	Entrypoint  string     `json:"entrypoint"`
-	Command     []string   `json:"command"`
-	Variables   []variable `json:"variables"`
-	Cronpattern string     `json:"cronPattern",validate:"empty=false > empty=false [empty=false] > ne=0"`
-}
-
-type jobs []job
-
-func log(msg string) {
-	fmt.Println(msg)
-}
+type jobs []models.JobModel
 
 func errorHandler(msg string, err error) {
 	if err != nil {
@@ -42,7 +22,7 @@ func errorHandler(msg string, err error) {
 }
 
 func getJobs(apiUrl string) jobs {
-	response, err := http.Get(apiUrl)
+	response, err := http.Get(utils.GetConfig().ApiUrl)
 	data, _ := ioutil.ReadAll(response.Body)
 	errorHandler("The HTTP request failed with error", err)
 	var Response jobs
@@ -51,7 +31,30 @@ func getJobs(apiUrl string) jobs {
 	return Response
 }
 
+func getJobsMock() []models.JobModel {
+	var resp []models.JobModel
+	resp = append(
+		resp,
+		models.JobModel{
+			ID:          "6077324217c1a973b708f95e",
+			CronPattern: "* * * * *",
+			Name:        "test",
+			Command:     []string{"echo", "hello world"},
+			Variables: []job.VariableModel{
+				{Key: "TestKeyFromModel", Value: "TestValueFromModel"},
+			},
+		})
+	return resp
+}
+
 func main() {
-	log("go.cron started")
-	fmt.Printf("%+v\n", getJobs(*apiUrl))
+	utils.LogInfo("go.cron started")
+	ctx := services.InitDockerContext()
+
+	// Using thread-safe Tick facility
+	tick := time.Tick(time.Second)
+
+	for range tick {
+		services.Runner{Ctx: ctx}.Run(getJobsMock())
+	}
 }
