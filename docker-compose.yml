@@ -1,11 +1,22 @@
 version: "3.3"
 services:
-  app:
-    build: .
+  api:
+    restart: always
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    ports:
+      - "10000:10000"
+  runner:
+    restart: always
+    depends_on:
+      - api
+    build:
+      context: .
+      dockerfile: runner/Dockerfile
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     environment:
-      API_URL: ""
-      RUNNER_BASE_IMAGE: "alpine:latest"
+      API_URL: "http://api:10000/all"
       RUNNER_ENV: "QWEWQEW=ASDDSA"
       DEBUG: "true"
-      DOCKER_API_URL: ""
-      DOCKER_PULL_POLICY: ""
