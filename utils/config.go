@@ -6,19 +6,23 @@ import (
 )
 
 type Config struct {
-	RunnerBaseImage string
-	Debug           bool
-	ApiUrl          string
-	RunnerEnv       string
+	Debug     bool   `validate:"-"`
+	ApiUrl    string `validate:"required,min=4"`
+	RunnerEnv string `validate:"-"`
 }
 
 func GetConfig() Config {
 	debug, _ := strconv.ParseBool(os.Getenv("DEBUG"))
 
-	return Config{
-		RunnerBaseImage: os.Getenv("RUNNER_BASE_IMAGE"),
-		Debug:           debug,
-		ApiUrl:          os.Getenv("API_URL"),
-		RunnerEnv:       os.Getenv("RUNNER_ENV"),
+	conf := Config{
+		Debug:     debug,
+		ApiUrl:    os.Getenv("API_URL"),
+		RunnerEnv: os.Getenv("RUNNER_ENV"),
 	}
+
+	if Validate(conf, "Invalid Configuration", true) {
+		return conf
+	}
+
+	return Config{}
 }

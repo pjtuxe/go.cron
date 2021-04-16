@@ -1,7 +1,6 @@
 package services
 
 import (
-	"encoding/json"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"go.cron/models"
@@ -34,22 +33,22 @@ func prepareJobEnvironment(job *models.JobModel) []string {
 		}
 	}
 
-	content, _ := json.Marshal(env)
-	utils.LogInfo(string(content))
-
 	return env
 }
 
 func (runner JobRunner) Run(job *models.JobModel) {
 	utils.LogInfo("running job \"" + job.ID + "\"")
 
-	// TODO: make API request to API to generate log id
+	// TODO: image pull policy from job object
+	_, pullErr := runner.Ctx.Cli.ImagePull(runner.Ctx.Context, job.Image, job.ImagePullPolicy)
 
-	utils.LogDebug("create container")
+	utils.ErrorHandler("Image Pull error", pullErr)
+
+	utils.ObjDebugger(job, "Container Created from: ")
 	resp, err := runner.Ctx.Cli.ContainerCreate(
 		runner.Ctx.Context,
 		&container.Config{
-			Image: utils.GetConfig().RunnerBaseImage,
+			Image: job.Image,
 			Cmd:   job.Command,
 			Tty:   false,
 			Env:   prepareJobEnvironment(job),
@@ -69,7 +68,7 @@ func (runner JobRunner) Run(job *models.JobModel) {
 		return
 	}
 
-	utils.LogDebug("start container")
+	utils.ObjDebugger(job, "Container Started from: ")
 	err = runner.Ctx.Cli.ContainerStart(
 		runner.Ctx.Context,
 		resp.ID,

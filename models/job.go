@@ -1,16 +1,20 @@
 package models
 
-import "go.cron/models/job"
-import "strings"
+import (
+	"github.com/docker/docker/api/types"
+	"go.cron/models/job"
+	"strings"
+)
 
 type JobModel struct {
-	Name        string              `json:"name" validate:"empty=false > empty=false [empty=false] > ne=0"`
-	ID          string              `json:"id" validate:"empty=false > empty=false [empty=false] > ne=0"`
-	Image       string              `json:"image" validate:"empty=false > empty=false [empty=false] > ne=0"`
-	Entrypoint  string              `json:"entrypoint"`
-	Command     []string            `json:"command"`
-	Variables   []job.VariableModel `json:"variables"`
-	CronPattern string              `json:"cronPattern" validate:"empty=false > empty=false [empty=false] > ne=0"`
+	Name            string                 `json:"name" validate:"required"`
+	ID              string                 `json:"id" validate:"required"`
+	Image           string                 `json:"image" validate:"required"`
+	ImagePullPolicy types.ImagePullOptions `json:"image" validate:"required"`
+	Entrypoint      string                 `json:"entrypoint" validate:"-"`
+	Command         []string               `json:"command" validate:"-"`
+	Variables       []job.VariableModel    `json:"variables" validate:"-"`
+	CronPattern     string                 `json:"cronPattern" validate:"required"`
 }
 
 func (job JobModel) GetCronPattern() string {

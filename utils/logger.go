@@ -20,6 +20,13 @@ func NewError(message string, severity string) Error {
 	return err
 }
 
+func ErrorHandler(msg string, err error) {
+	if err != nil {
+		LogError(msg)
+		panic(err)
+	}
+}
+
 func log(msg string) {
 	fmt.Println(msg)
 }
@@ -34,9 +41,25 @@ func LogError(msg string) {
 	log(string(payload))
 }
 
+func LogWarn(msg string) {
+	payload, _ := json.Marshal(NewError(msg, "warn"))
+	log(string(payload))
+}
+
 func LogDebug(msg string) {
 	if GetConfig().Debug {
 		payload, _ := json.Marshal(NewError(msg, "debug"))
 		log(string(payload))
 	}
+}
+
+func ObjDebugger(obj interface{}, msg string) {
+	if GetConfig().Debug {
+		LogDebug(msg + ObjParser(obj))
+	}
+}
+
+func ObjParser(obj interface{}) string {
+	content, _ := json.Marshal(obj)
+	return string(content)
 }

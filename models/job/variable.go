@@ -1,6 +1,6 @@
 package job
 
 type VariableModel struct {
-	Key   string `validate:"empty=false > empty=false [empty=false] > ne=0"`
-	Value string `validate:"empty=false > empty=false [empty=false] > ne=0"`
+	Key   string `json:"key" validate:"required"`
+	Value string `json:"value" validate:"required"`
 }

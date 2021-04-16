@@ -1,7 +1,7 @@
 FROM golang:1.16.3 AS builder
 
 WORKDIR /go/src/github.com/pjtuxe/go.cron/
-RUN go get -d -v golang.org/x/net/html
+RUN go get -d -v
 
 # Copy files to build
 COPY . .

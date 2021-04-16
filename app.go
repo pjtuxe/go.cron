@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
+	"github.com/docker/docker/api/types"
 	"go.cron/models"
 	"go.cron/models/job"
 	"go.cron/services"
@@ -14,20 +14,14 @@ import (
 
 type jobs []models.JobModel
 
-func errorHandler(msg string, err error) {
-	if err != nil {
-		fmt.Printf(msg+"%s\n", err)
-		panic(err)
-	}
-}
-
-func getJobs(apiUrl string) jobs {
-	response, err := http.Get(utils.GetConfig().ApiUrl)
-	data, _ := ioutil.ReadAll(response.Body)
-	errorHandler("The HTTP request failed with error", err)
+func getJobs() jobs {
+	response, requestErr := http.Get(utils.GetConfig().ApiUrl)
+	utils.ErrorHandler("The HTTP request failed with error", requestErr)
+	data, readErr := ioutil.ReadAll(response.Body)
+	utils.ErrorHandler("The HTTP request failed with error", readErr)
 	var Response jobs
 	parseErr := json.Unmarshal(data, &Response)
-	errorHandler("Parse error", parseErr)
+	utils.ErrorHandler("Parse error", parseErr)
 	return Response
 }
 
@@ -36,10 +30,12 @@ func getJobsMock() []models.JobModel {
 	resp = append(
 		resp,
 		models.JobModel{
-			ID:          "6077324217c1a973b708f95e",
-			CronPattern: "* * * * *",
-			Name:        "test",
-			Command:     []string{"echo", "hello world"},
+			Image:           "alpine:latest",
+			ImagePullPolicy: types.ImagePullOptions{},
+			ID:              "6077324217c1a973b708f95e",
+			CronPattern:     "* * * * *",
+			Name:            "test",
+			Command:         []string{"echo", "hello world"},
 			Variables: []job.VariableModel{
 				{Key: "TestKeyFromModel", Value: "TestValueFromModel"},
 			},
@@ -48,9 +44,9 @@ func getJobsMock() []models.JobModel {
 }
 
 func main() {
-	utils.LogInfo("go.cron started")
+	utils.GetConfig()
 	ctx := services.InitDockerContext()
-
+	utils.LogInfo("go.cron started")
 	// Using thread-safe Tick facility
 	tick := time.Tick(time.Second)
 

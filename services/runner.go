@@ -16,12 +16,16 @@ func (runner Runner) Run(jobs []models.JobModel) {
 
 	for _, job := range jobs {
 		go func(job models.JobModel) {
-			err := c.AddFunc(job.GetCronPattern(), func() {
-				JobRunner{Ctx: runner.Ctx}.Run(&job)
-			})
+			if utils.Validate(job, "Invalid job: "+job.ID, false) {
+				err := c.AddFunc(job.GetCronPattern(), func() {
+					JobRunner{Ctx: runner.Ctx}.Run(&job)
+				})
 
-			if err != nil {
-				utils.LogError(err.Error())
+				if err != nil {
+					utils.LogError(err.Error())
+				}
+			} else {
+				utils.LogWarn(utils.ObjParser(job))
 			}
 		}(job)
 	}
