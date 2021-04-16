@@ -1,9 +1,10 @@
-package services
+package src
 
 import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"go.cron/core/models"
+	"go.cron/core/services"
 	"go.cron/core/utils"
 	"strconv"
 	"strings"
@@ -11,7 +12,14 @@ import (
 )
 
 type JobRunner struct {
-	Ctx DockerContext
+	Ctx services.DockerContext
+}
+
+func ImagePull(name string, ctx services.DockerContext) {
+	// TODO: image pull policy from job object
+	_, pullErr := ctx.Cli.ImagePull(ctx.Context, name, types.ImagePullOptions{})
+
+	utils.ErrorHandler("Image Pull error", pullErr, utils.GetConfig().Debug)
 }
 
 func generateContainerNameFor(job *models.JobModel) string {
@@ -38,12 +46,7 @@ func prepareJobEnvironment(job *models.JobModel) []string {
 
 func (runner JobRunner) Run(job *models.JobModel) {
 	utils.LogInfo("running job \"" + job.ID + "\"")
-
-	// TODO: image pull policy from job object
-	_, pullErr := runner.Ctx.Cli.ImagePull(runner.Ctx.Context, job.Image, types.ImagePullOptions{})
-
-	utils.ErrorHandler("Image Pull error", pullErr, utils.GetConfig().Debug)
-
+	ImagePull(job.Image, runner.Ctx)
 	utils.ObjDebugger(job, "Container Created from: ")
 	resp, err := runner.Ctx.Cli.ContainerCreate(
 		runner.Ctx.Context,

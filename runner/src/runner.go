@@ -1,14 +1,15 @@
-package services
+package src
 
 import (
 	"github.com/robfig/cron"
 	"go.cron/core/models"
+	"go.cron/core/services"
 	"go.cron/core/utils"
 	"time"
 )
 
 type Runner struct {
-	Ctx DockerContext
+	Ctx services.DockerContext
 }
 
 func (runner Runner) Run(jobs []models.JobModel) {

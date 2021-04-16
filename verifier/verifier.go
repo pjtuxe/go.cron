@@ -7,8 +7,8 @@ import (
 	"go.cron/core/utils"
 	"io/ioutil"
 	"net/http"
-	"runner/src"
 	"time"
+	"verifier/src"
 )
 
 type jobs []models.JobModel
@@ -26,14 +26,18 @@ func getJobs() jobs {
 	return jobs
 }
 
+func getManagedContainers() {
+
+}
+
 func main() {
 	utils.GetConfig()
 	ctx := services.InitDockerContext()
-	utils.LogInfo("go.cron runner started")
+	utils.LogInfo("go.cron verifier started")
 	// Using thread-safe Tick facility
 	tick := time.Tick(time.Second)
 
 	for range tick {
-		src.Runner{Ctx: ctx}.Run(getJobs())
+		src.JobVerifier{Ctx: ctx}.Run()
 	}
 }
