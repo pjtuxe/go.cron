@@ -1,7 +1,7 @@
 package models
 
 import (
-	"go.cron/models/job"
+	"go.cron/core/models/job"
 	"strings"
 )
 

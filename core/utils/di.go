@@ -2,7 +2,7 @@ package utils
 
 import (
 	"github.com/golobby/container/v2/pkg/container"
-	"go.cron/notifiers"
+	"go.cron/core/notifiers"
 )
 
 type Di struct {

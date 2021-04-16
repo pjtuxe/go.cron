@@ -2,8 +2,8 @@ package services
 
 import (
 	"github.com/robfig/cron"
-	"go.cron/models"
-	"go.cron/utils"
+	"go.cron/core/models"
+	"go.cron/core/utils"
 	"time"
 )
 

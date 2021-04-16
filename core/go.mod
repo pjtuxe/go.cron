@@ -1,4 +1,4 @@
-module go.cron
+module go.cron/core
 
 go 1.16
 

@@ -2,9 +2,9 @@ package main
 
 import (
 	"encoding/json"
-	"go.cron/models"
-	"go.cron/services"
-	"go.cron/utils"
+	"go.cron/core/models"
+	"go.cron/core/services"
+	"go.cron/core/utils"
 	"io/ioutil"
 	"net/http"
 	"time"
