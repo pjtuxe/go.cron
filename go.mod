@@ -1,6 +1,6 @@
 module go.cron
 
-go 1.14
+go 1.16
 
 require (
 	github.com/Microsoft/go-winio v0.4.17 // indirect
@@ -14,6 +14,7 @@ require (
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golobby/container/v2 v2.1.2
 	github.com/gorhill/cronexpr v0.0.0-20180427100037-88b0669f7d75
+	github.com/gorilla/mux v1.8.0
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.0.1 // indirect
