@@ -16,7 +16,7 @@ func (runner Runner) Run(jobs []models.JobModel) {
 
 	for _, job := range jobs {
 		go func(job models.JobModel) {
-			if utils.Validate(job, "Invalid job: "+job.ID, false) {
+			if utils.Validate(job, "Invalid job: "+job.ID, utils.GetConfig().Debug) {
 				err := c.AddFunc(job.GetCronPattern(), func() {
 					JobRunner{Ctx: runner.Ctx}.Run(&job)
 				})

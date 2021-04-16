@@ -40,7 +40,7 @@ func (runner JobRunner) Run(job *models.JobModel) {
 	utils.LogInfo("running job \"" + job.ID + "\"")
 
 	// TODO: image pull policy from job object
-	_, pullErr := runner.Ctx.Cli.ImagePull(runner.Ctx.Context, job.Image, job.ImagePullPolicy)
+	_, pullErr := runner.Ctx.Cli.ImagePull(runner.Ctx.Context, job.Image, types.ImagePullOptions{})
 
 	utils.ErrorHandler("Image Pull error", pullErr)
 
