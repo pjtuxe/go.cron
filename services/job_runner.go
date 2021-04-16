@@ -42,7 +42,7 @@ func (runner JobRunner) Run(job *models.JobModel) {
 	// TODO: image pull policy from job object
 	_, pullErr := runner.Ctx.Cli.ImagePull(runner.Ctx.Context, job.Image, types.ImagePullOptions{})
 
-	utils.ErrorHandler("Image Pull error", pullErr)
+	utils.ErrorHandler("Image Pull error", pullErr, utils.GetConfig().Debug)
 
 	utils.ObjDebugger(job, "Container Created from: ")
 	resp, err := runner.Ctx.Cli.ContainerCreate(

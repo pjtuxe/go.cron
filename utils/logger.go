@@ -20,11 +20,16 @@ func NewError(message string, severity string) Error {
 	return err
 }
 
-func ErrorHandler(msg string, err error) {
+func ErrorHandler(msg string, err error, fatal bool) bool {
 	if err != nil {
 		LogError(msg)
-		panic(err)
+		if fatal {
+			panic(err)
+		}
+		return false
 	}
+
+	return true
 }
 
 func log(msg string) {

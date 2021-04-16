@@ -15,7 +15,7 @@ func InitDockerContext() DockerContext {
 	utils.LogDebug("initializing docker context")
 	ctx := context.Background()
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
-	utils.ErrorHandler("docker initialization error", err)
+	utils.ErrorHandler("docker initialization error", err, true)
 	utils.LogDebug("docker context initialized")
 	return DockerContext{Cli: *cli, Context: ctx}
 }

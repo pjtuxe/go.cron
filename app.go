@@ -13,13 +13,15 @@ import (
 type jobs []models.JobModel
 
 func getJobs() jobs {
-	response, requestErr := http.Get(utils.GetConfig().ApiUrl)
-	utils.ErrorHandler("The HTTP request failed with error", requestErr)
-	data, readErr := ioutil.ReadAll(response.Body)
-	utils.ErrorHandler("The HTTP request failed with error", readErr)
 	var jobs jobs
-	parseErr := json.Unmarshal(data, &jobs)
-	utils.ErrorHandler("Parse error", parseErr)
+	response, requestErr := http.Get(utils.GetConfig().ApiUrl)
+	utils.ErrorHandler("The HTTP request failed with error", requestErr, utils.GetConfig().Debug)
+	if response != nil {
+		data, readErr := ioutil.ReadAll(response.Body)
+		utils.ErrorHandler("The HTTP request failed with error", readErr, utils.GetConfig().Debug)
+		parseErr := json.Unmarshal(data, &jobs)
+		utils.ErrorHandler("Parse error", parseErr, utils.GetConfig().Debug)
+	}
 	return jobs
 }
 
